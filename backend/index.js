@@ -1,29 +1,37 @@
 const express = require('express');
-const axios = require('axios');
+const path = require('path');
+const { connectRedis } = require('./utils/redis_client');
+const whatsappRoutes = require('./routes/whatsapp');
+
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
+
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.NODE_PORT || 3000;
 
+// Middleware - Add URL-encoded parser for Twilio
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Add this line
+
+// Routes
 app.get('/health', (req, res) => {
-  res.send('Backend is running!');
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-app.post('/webhook', express.json(), async (req, res) => {
-  const userQuery = req.body.message; // Adjust based on WhatsApp payload structure
+app.use('/api/whatsapp', whatsappRoutes);
 
-  // Forward to Python FastAPI agent
+// Start server
+async function startServer() {
   try {
-    const agentRes = await axios.post('http://localhost:5000/agent', { query: userQuery });
-    const agentReply = agentRes.data.response;
-
-    // TODO: Send agentReply back to WhatsApp user
-
-    res.sendStatus(200);
-  } catch (err) {
-    console.error(err);
-    res.sendStatus(500);
+    await connectRedis();
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 Backend server running on port ${PORT}`);
+      console.log(`📱 WhatsApp webhook: http://localhost:${PORT}/api/whatsapp/webhook`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
   }
-});
+}
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+startServer();

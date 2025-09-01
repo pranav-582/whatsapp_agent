@@ -1,0 +1,38 @@
+# Core LangChain and Agent Framework
+langchain
+langchain-community
+langchain-core
+langgraph
+langsmith
+
+# Google Gemini Integration
+google-generativeai
+langchain-google-genai
+
+# Database Connections (for agent tools)
+psycopg2-binary
+redis
+
+# Environment Management
+python-dotenv
+
+# Web Framework (for agent API)
+fastapi
+uvicorn[standard]
+pydantic
+
+# HTTP Requests
+requests
+httpx
+
+# External APIs
+google-search-results
+
+# Utilities
+python-dateutil
+pytz
+
+# Logging
+structlog
+
+
